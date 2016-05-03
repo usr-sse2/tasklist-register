@@ -13,6 +13,15 @@ var bodyParser = require('body-parser');
 var app = express();
 app.use(bodyParser());
 
+var dbConnection;
+MongoClient.connectAsync('mongodb://heroku_5rd2876w:ook8c2lhdgt4023eb730psvtrv@ds035663.mlab.com:35663/heroku_5rd2876w')
+.then(function(db) {
+	dbConnection = db;
+})
+.catch(function(e) {
+	console.log(e);
+	process.exit(e.code);
+});
 
 app.post('/register', function(req, res) {
 	dbConnection.collection('usercollection').insertAsync({
