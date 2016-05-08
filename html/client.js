@@ -1,16 +1,22 @@
 const WebSocket = require('ws');
-const Promise = require('bluebird');
 const readline = require('readline');
 const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout
 });
 
-const ws = new WebSocket('ws://cmc-tasklists.herokuapp.com/');
-const Client = require('./libclient.js');
+const ClientConnection = require('./libclient.js');
 
-// cli
-ws.on('open', function open() {
+const c = new ClientConnection();
+
+c.connect('ws://localhost:5678')
+.then(function() {
+	var ws = c.ws;
+	
+	if (process.argv[2] == '-v')
+		ws.on('message', function(message) {
+			console.log(message);
+		});
 
 	ws.on('message', function(message) {
 		message = JSON.parse(message);
@@ -49,7 +55,7 @@ ws.on('open', function open() {
 	rl.prompt();
 	rl.on('line', line => {
 		var cmd = line.split(' ');
-		Client.p(ws, cmd);
+		c.request(cmd);
 	}).on('close', () => {
 		rl.write('\n');
 		process.exit(0);
