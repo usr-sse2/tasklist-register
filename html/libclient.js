@@ -20,18 +20,30 @@ ClientConnection.prototype.connect = function (url) {
 
 ClientConnection.prototype.disconnect = function () {
     'use strict';
-    this.ws.close();
+    var wsc = this;
+	return new Promise((resolve, reject) => {
+		if (wsc.ws) {
+			wsc.ws.on('close', resolve);
+			wsc.ws.on('error', reject);
+			wsc.ws.close();
+			wsc.ws = undefined; 
+		}
+		else
+			resolve();	
+	});
 };
 
 function registerHandler(ws, callback) {
-	ws.on('message', function fff(message) {
-		ws.removeListener('message', fff);
-		message = JSON.parse(message);
-		if ('status' in message && message.status != 'OK')
-			callback(message, undefined);
-		else
-			callback(undefined, message);
-	});
+	if (ws) {
+		ws.on('message', function fff(message) {
+			ws.removeListener('message', fff);
+			message = JSON.parse(message);
+			if ('status' in message && message.status != 'OK')
+				callback(message, undefined);
+			else
+				callback(undefined, message);
+		});
+	}
 }
 
 ClientConnection.prototype.request = Promise.promisify(function(cmd, callback) {
