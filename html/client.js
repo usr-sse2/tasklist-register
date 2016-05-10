@@ -9,7 +9,7 @@ const ClientConnection = require('./libclient.js');
 
 const c = new ClientConnection();
 
-c.connect('ws://localhost:5678')
+c.connect('ws://cmc-tasklists.herokuapp.com')
 .then(function() {
 	var ws = c.ws;
 	
